@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Every page lives under /v1/database/<db>/route, so the server injects
+       the real prefix here and all links below stay relative. -->
+  <base href="{{BASE}}/">
+  <title>Spacetime Site</title>
+  <link rel="icon" type="image/png" href="icon-png">
+  <link rel="stylesheet" href="style-css">
+</head>
+<body>
+  <header>
+    <img src="logo-svg" alt="" width="40" height="40">
+    <h1>Spacetime Site</h1>
+    <span class="tag">served entirely by a SpacetimeDB module</span>
+  </header>
+
+  <main>
+    <section class="card" id="account">
+      <h2>Account</h2>
+      <div id="me">Checking session…</div>
+      <form id="auth" hidden>
+        <input name="name" placeholder="name" required autocomplete="username">
+        <input name="password" type="password" placeholder="password" required autocomplete="current-password">
+        <button data-action="login">Log in</button>
+        <button data-action="register" class="secondary">Register</button>
+      </form>
+      <button id="logout" hidden class="secondary">Log out</button>
+    </section>
+
+    <section class="card">
+      <h2>Posts</h2>
+      <form id="new-post" hidden>
+        <textarea name="body" placeholder="Say something…" maxlength="2000" required></textarea>
+        <button>Post</button>
+      </form>
+      <ul id="posts"><li class="muted">Loading…</li></ul>
+    </section>
+
+    <section class="card">
+      <h2>Lab</h2>
+      <p class="muted">Each button pokes at one HTTP-handler capability and shows the raw result.</p>
+      <div class="lab">
+        <button data-test="echo">Echo request</button>
+        <button data-test="big">1 MB response</button>
+        <button data-test="upload">Upload 256 KB</button>
+        <button data-test="gzip">Gzip page</button>
+        <button data-test="etag">ETag / 304</button>
+        <button data-test="redirect">Redirect</button>
+        <button data-test="outbound">Outbound fetch</button>
+        <button data-test="panic">Handler panic</button>
+        <button data-test="stats">Hit counters</button>
+      </div>
+      <pre id="lab-out">Pick a test.</pre>
+    </section>
+  </main>
+
+  <footer class="muted">Page rendered at {{RENDERED}} · <a href="api/stats">stats JSON</a></footer>
+  <script src="app-js"></script>
+</body>
+</html>

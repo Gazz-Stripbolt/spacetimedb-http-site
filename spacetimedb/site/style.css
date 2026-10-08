@@ -1,0 +1,30 @@
+:root {
+  --bg: #f6f5f2; --fg: #1d1d1f; --muted: #6b6b70; --card: #fff;
+  --line: #e2e0da; --accent: #e8730c; --accent-fg: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #151517; --fg: #ececf0; --muted: #9a9aa2; --card: #1f1f23; --line: #2f2f35; }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+header { display: flex; align-items: center; gap: 12px; padding: 20px 16px; max-width: 760px; margin: 0 auto; flex-wrap: wrap; }
+header h1 { margin: 0; font-size: 22px; }
+.tag { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 2px 10px; }
+main { max-width: 760px; margin: 0 auto; padding: 0 16px; display: grid; gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.card h2 { margin: 0 0 10px; font-size: 16px; }
+form { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+input, textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); }
+textarea { width: 100%; min-height: 70px; resize: vertical; }
+button { font: inherit; padding: 8px 14px; border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
+button.secondary { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+ul { list-style: none; padding: 0; margin: 0; }
+li { border-top: 1px solid var(--line); padding: 10px 0; }
+li:first-child { border-top: 0; }
+.meta { font-size: 12px; color: var(--muted); }
+.muted { color: var(--muted); }
+.lab { display: flex; gap: 8px; flex-wrap: wrap; }
+pre { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px; overflow: auto; max-height: 320px; font-size: 12px; white-space: pre-wrap; word-break: break-word; }
+footer { max-width: 760px; margin: 24px auto; padding: 0 16px; font-size: 12px; }
+a { color: var(--accent); }

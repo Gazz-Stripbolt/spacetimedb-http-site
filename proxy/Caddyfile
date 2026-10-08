@@ -1,0 +1,56 @@
+# Demo: a "real" domain in front of a SpacetimeDB module's HTTP routes.
+# stdb-site.localhost resolves to 127.0.0.1 in browsers and curl, so this runs
+# entirely locally. For Maincloud, swap the upstream (see bottom).
+{
+	admin off
+	auto_https off
+}
+
+http://stdb-site.localhost:8080 {
+	encode zstd gzip
+
+	route {
+		# All rewrites in one block are mutually exclusive in Caddy (first match wins),
+		# so each one maps straight onto the module's route prefix.
+		@head method HEAD
+		# Module routes have no automatic HEAD; ask for GET (Go drops the body for HEAD).
+		method @head GET
+
+		# Module routes can't contain dots; let the outside world use normal filenames.
+		rewrite /favicon.ico /v1/database/stdb-site/route/icon-png
+		@dotted path_regexp dotted ^/([a-z0-9_/-]+)\.([a-z0-9]+)$
+		rewrite @dotted /v1/database/stdb-site/route/{re.dotted.1}-{re.dotted.2}
+
+		# Module routes can't have path params; turn pretty URLs into query strings.
+		@post path_regexp post ^/posts/([0-9]+)$
+		rewrite @post /v1/database/stdb-site/route/post?id={re.post.1}
+
+		# Everything else lands under the route prefix as-is.
+		rewrite * /v1/database/stdb-site/route{uri}
+
+		reverse_proxy 127.0.0.1:3000 {
+			# Tell the module what base path the browser sees, for <base href>, cookies, redirects.
+			header_up X-Site-Base /
+			# The host forces CORS headers onto every response; same-origin now, so drop them.
+			header_down -Access-Control-Allow-Origin
+			header_down -Vary
+
+			# Swap the host's plain-text 404 for our own page.
+			@notfound status 404
+			handle_response @notfound {
+				rewrite * /404.html
+				file_server {
+					root {$SITE_PROXY_ROOT}
+					status 404
+				}
+			}
+		}
+	}
+}
+
+# For Maincloud instead of the local server, use:
+#   rewrite * /v1/database/<your-db>/route{uri}
+#   reverse_proxy https://maincloud.spacetimedb.com {
+#       header_up Host maincloud.spacetimedb.com
+#       header_up X-Site-Base /
+#   }

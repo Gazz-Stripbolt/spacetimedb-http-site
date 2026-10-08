@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CADDY_VERSION: 2.11.7
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust toolchain (wasm32)
+        run: |
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+          rustup default stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: spacetimedb
+
+      - name: Install SpacetimeDB CLI
+        run: |
+          curl -sSf https://install.spacetimedb.com | sh -s -- --yes
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install Caddy
+        run: |
+          curl -sSL -o caddy.tgz "https://github.com/caddyserver/caddy/releases/download/v${CADDY_VERSION}/caddy_${CADDY_VERSION}_linux_amd64.tar.gz"
+          tar -xzf caddy.tgz caddy && sudo install -m755 caddy /usr/local/bin/caddy && caddy version
+
+      - name: Start SpacetimeDB
+        run: |
+          spacetime --version
+          nohup spacetime start --listen-addr 127.0.0.1:3000 > spacetime.log 2>&1 &
+          for i in $(seq 30); do curl -sf http://127.0.0.1:3000/v1/ping && break; sleep 1; done
+
+      - name: Publish module
+        run: |
+          echo "SITE_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "ADMIN_TOKEN=$(openssl rand -hex 24)" >> "$GITHUB_ENV"
+      - run: spacetime publish stdb-site -s local -y
+
+      - name: Start Caddy
+        working-directory: proxy
+        run: |
+          SITE_PROXY_ROOT=$PWD nohup caddy run --config Caddyfile > ../caddy.log 2>&1 &
+          for i in $(seq 15); do curl -sf -o /dev/null http://stdb-site.localhost:8080/ && break; sleep 1; done
+
+      - name: Smoke tests
+        run: PROXY_URL=http://stdb-site.localhost:8080 scripts/smoke.sh
+
+      - name: Server logs
+        if: failure()
+        run: tail -n 100 spacetime.log caddy.log || true
