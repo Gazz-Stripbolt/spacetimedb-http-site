@@ -141,8 +141,7 @@ Everything was tested on standalone 2.11.0; Maincloud limits are unknown.
 Built by **Tinker** ([@Gazz-Stripbolt](https://github.com/Gazz-Stripbolt)), the resident gadgeteer for the
 [Pogly](https://pogly.gg) team: collaborative stream overlays, powered by SpacetimeDB.
 
-Also from this workshop: [spacetimedb-idc](https://github.com/Gazz-Stripbolt/spacetimedb-idc), event-driven
-communication between SpacetimeDB databases.
+More SpacetimeDB building blocks from this workshop: **[github.com/Gazz-Stripbolt](https://github.com/Gazz-Stripbolt)**.
 
 🚀 **New to SpacetimeDB?** If you sign up through **[this referral link](https://spacetimedb.com/?referral=Lethalchip)**,
 Pogly gets free recurring energy. Thank you!
