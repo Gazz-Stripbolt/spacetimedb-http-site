@@ -2,13 +2,17 @@
 # End-to-end checks against a published stdb-site module.
 #
 #   STDB_URL=http://127.0.0.1:3000 DB=stdb-site ADMIN_TOKEN=... scripts/smoke.sh
+#   SITE_LANG=csharp DB=site-csharp scripts/smoke.sh               # also check which module answered
 #   PROXY_URL=http://stdb-site.localhost:8080 scripts/smoke.sh   # also test the Caddy proxy
+#
+# The same checks pass against the Rust, C# and TypeScript modules.
 #
 # Every check documents one behaviour of SpacetimeDB HTTP handlers.
 set -uo pipefail
 
 STDB_URL=${STDB_URL:-http://127.0.0.1:3000}
 DB=${DB:-stdb-site}
+SITE_LANG=${SITE_LANG:-}
 B="$STDB_URL/v1/database/$DB/route"
 PROXY_URL=${PROXY_URL:-}
 TMP=$(mktemp -d)
@@ -36,6 +40,10 @@ check "JS served with its content type"      "text/javascript; charset=utf-8" "$
 check "SVG served"                           "image/svg+xml" "$(ctype "$B/logo-svg")"
 check "PNG served"                           "image/png" "$(ctype "$B/icon-png")"
 check "custom security headers pass through" "default-src 'self'; img-src 'self' data:; connect-src 'self'" "$(header content-security-policy "$B/")"
+if [[ -n $SITE_LANG ]]; then
+  want=$(case $SITE_LANG in rust) echo Rust ;; csharp) echo 'C#' ;; typescript) echo TypeScript ;; esac)
+  check "served by the $want module"         "by the $want module" "$(curl -s "$B/" | grep -o 'by the [^ ]* module')"
+fi
 
 echo "Routing rules"
 check "dots aren't allowed in routes"        404 "$(status "$B/style.css")"
@@ -66,7 +74,7 @@ ETAG=$(header etag "$B/asset?name=hello-txt")
 check "ETag + If-None-Match gives 304"       304 "$(status -H "If-None-Match: $ETAG" "$B/asset?name=hello-txt")"
 check "host forces CORS to *"                "*" "$(header access-control-allow-origin "$B/")"
 check "OPTIONS never reaches the handler"    "" "$(header x-from-handler -X OPTIONS -H 'origin: https://example.org' -H 'access-control-request-method: POST' "$B/api/cors")"
-check "outbound HTTP to loopback is refused" 502 "$(status "$B/api/outbound?url=http://127.0.0.1:3000/v1/ping")"
+check "outbound HTTP to private IPs is refused" 502 "$(status "$B/api/outbound?url=http://169.254.169.254/latest/meta-data")"
 
 echo "Sizes"
 check "16 MB response"                       16777216 "$(curl -s -o /dev/null -w '%{size_download}' "$B/api/big?kb=16384")"
@@ -80,7 +88,8 @@ check "asset upload without token rejected"  401 "$(status -X PUT --data-binary 
 
 echo "Failure modes"
 check "panic gives 500"                      500 "$(status "$B/api/panic")"
-check "panic body includes a wasm backtrace" 1 "$(curl -s "$B/api/panic" | grep -c 'wasm backtrace')"
+# Rust and C#: a wasm backtrace. TypeScript: the JS stack trace (source paths included).
+check "panic body leaks a stack trace"       1 "$(curl -s "$B/api/panic" | grep -cE 'wasm backtrace|^Uncaught Error')"
 before=$(curl -s "$B/api/stats" | json 'd["hits"].get("write-then-panic", 0)')
 status "$B/api/write-then-panic" >/dev/null
 check "write before a panic stays committed" $((before + 1)) "$(curl -s "$B/api/stats" | json 'd["hits"].get("write-then-panic", 0)')"

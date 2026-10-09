@@ -1,0 +1,18 @@
+{
+  "name": "stdb-site-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen": "node scripts/gen-site.mjs",
+    "typecheck": "node scripts/gen-site.mjs && tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "fflate": "^0.8.2",
+    "spacetimedb": "2.11.*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}

@@ -227,11 +227,11 @@ fn session_cookie(base: &str, value: &str, max_age: i64) -> String {
 
 // ---------- pages and static assets ----------
 
-const INDEX_HTML: &str = include_str!("../site/index.html");
-const APP_JS: &str = include_str!("../site/app.js");
-const STYLE_CSS: &str = include_str!("../site/style.css");
-const LOGO_SVG: &str = include_str!("../site/logo.svg");
-const ICON_PNG: &[u8] = include_bytes!("../site/icon.png");
+const INDEX_HTML: &str = include_str!("../../site/index.html");
+const APP_JS: &str = include_str!("../../site/app.js");
+const STYLE_CSS: &str = include_str!("../../site/style.css");
+const LOGO_SVG: &str = include_str!("../../site/logo.svg");
+const ICON_PNG: &[u8] = include_bytes!("../../site/icon.png");
 
 fn html_escape(s: &str) -> String {
     s.replace('&', "&amp;")
@@ -245,7 +245,8 @@ fn index(ctx: &mut HandlerContext, req: Request) -> Response {
     count_hit(ctx, "index");
     let page = INDEX_HTML
         .replace("{{BASE}}", &base_path(&req))
-        .replace("{{RENDERED}}", &ctx.timestamp.to_string());
+        .replace("{{RENDERED}}", &ctx.timestamp.to_string())
+        .replace("{{LANG}}", "Rust");
     let mut res = respond(StatusCode::OK, "text/html; charset=utf-8", page);
     let h = res.headers_mut();
     h.insert(header::CACHE_CONTROL, "no-cache".parse().unwrap());

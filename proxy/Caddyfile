@@ -1,6 +1,7 @@
 # Demo: a "real" domain in front of a SpacetimeDB module's HTTP routes.
 # stdb-site.localhost resolves to 127.0.0.1 in browsers and curl, so this runs
 # entirely locally. For Maincloud, swap the upstream (see bottom).
+# SITE_DB picks the database (default stdb-site), e.g. SITE_DB=site-csharp.
 {
 	admin off
 	auto_https off
@@ -17,16 +18,16 @@ http://stdb-site.localhost:8080 {
 		method @head GET
 
 		# Module routes can't contain dots; let the outside world use normal filenames.
-		rewrite /favicon.ico /v1/database/stdb-site/route/icon-png
+		rewrite /favicon.ico /v1/database/{$SITE_DB:stdb-site}/route/icon-png
 		@dotted path_regexp dotted ^/([a-z0-9_/-]+)\.([a-z0-9]+)$
-		rewrite @dotted /v1/database/stdb-site/route/{re.dotted.1}-{re.dotted.2}
+		rewrite @dotted /v1/database/{$SITE_DB:stdb-site}/route/{re.dotted.1}-{re.dotted.2}
 
 		# Module routes can't have path params; turn pretty URLs into query strings.
 		@post path_regexp post ^/posts/([0-9]+)$
-		rewrite @post /v1/database/stdb-site/route/post?id={re.post.1}
+		rewrite @post /v1/database/{$SITE_DB:stdb-site}/route/post?id={re.post.1}
 
 		# Everything else lands under the route prefix as-is.
-		rewrite * /v1/database/stdb-site/route{uri}
+		rewrite * /v1/database/{$SITE_DB:stdb-site}/route{uri}
 
 		reverse_proxy 127.0.0.1:3000 {
 			# Tell the module what base path the browser sees, for <base href>, cookies, redirects.
