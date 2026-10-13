@@ -9,7 +9,7 @@ SpacetimeDB [HTTP handlers](https://spacetimedb.com/docs/functions/http-handlers
 The same site is built three times, in **Rust**, **C#** and **TypeScript**, and one test suite checks all three.
 
 [![CI](https://github.com/Gazz-Stripbolt/spacetimedb-http-site/actions/workflows/ci.yml/badge.svg)](https://github.com/Gazz-Stripbolt/spacetimedb-http-site/actions/workflows/ci.yml)
-![SpacetimeDB 2.11](https://img.shields.io/badge/SpacetimeDB-2.11-e8730c)
+![SpacetimeDB 2.12](https://img.shields.io/badge/SpacetimeDB-2.12-e8730c)
 ![HTTP handlers: beta](https://img.shields.io/badge/HTTP%20handlers-beta-yellow)
 ![Rust](https://img.shields.io/badge/Rust-module-b7410e)
 ![C#](https://img.shields.io/badge/C%23-module-512bd4)
