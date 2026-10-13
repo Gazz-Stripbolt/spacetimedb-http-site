@@ -10,7 +10,7 @@
   "dependencies": {
     "@noble/hashes": "^1.8.0",
     "fflate": "^0.8.2",
-    "spacetimedb": "2.11.*"
+    "spacetimedb": "2.12.*"
   },
   "devDependencies": {
     "typescript": "^5.9.0"
