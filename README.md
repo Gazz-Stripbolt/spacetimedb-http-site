@@ -2,14 +2,14 @@
 
 # 🔧 Spacetime Site
 
-**A full website served from a single SpacetimeDB module, with no web server.**
+**A full website served from a single Spacetime module, with no web server.**
 
 The pages, CSS, JS, images, JSON API, cookie logins and server-rendered permalinks are all
-SpacetimeDB [HTTP handlers](https://spacetimedb.com/docs/functions/http-handlers), plus live updates over the usual subscriptions.
+Spacetime [HTTP handlers](https://spacetimedb.com/docs/functions/http-handlers), plus live updates over the usual subscriptions.
 The same site is built three times, in **Rust**, **C#** and **TypeScript**, and one test suite checks all three.
 
 [![CI](https://github.com/Gazz-Stripbolt/spacetimedb-http-site/actions/workflows/ci.yml/badge.svg)](https://github.com/Gazz-Stripbolt/spacetimedb-http-site/actions/workflows/ci.yml)
-![SpacetimeDB 2.12](https://img.shields.io/badge/SpacetimeDB-2.12-e8730c)
+![Spacetime 2.12](https://img.shields.io/badge/Spacetime-2.12-e8730c)
 ![HTTP handlers: beta](https://img.shields.io/badge/HTTP%20handlers-beta-yellow)
 ![Rust](https://img.shields.io/badge/Rust-module-b7410e)
 ![C#](https://img.shields.io/badge/C%23-module-512bd4)
@@ -47,7 +47,7 @@ This is an example repo, not a library: copy whichever module is in your languag
 
 ## Why this exists
 
-SpacetimeDB 2.4 added **HTTP handlers**: module functions that answer plain HTTP requests at
+Spacetime 2.4 added **HTTP handlers**: module functions that answer plain HTTP requests at
 `/v1/database/<db>/route/...`. They're usually pitched for webhooks and REST endpoints. This
 project asks a bigger question:
 
@@ -65,7 +65,7 @@ flowchart LR
     B -- "GET /route/style-css, /app-js, /icon-png" --> H
     B -- "fetch('api/posts'), cookie" --> H
     B <-. "WebSocket subscription (optional live updates)" .-> T
-    subgraph M [SpacetimeDB module]
+    subgraph M [Spacetime module]
       H["HTTP handlers + Router"] -- "ctx.with_tx" --> T[("Tables: post, account, session, asset, hit")]
     end
 ```
@@ -77,14 +77,14 @@ flowchart LR
 
 ## Quick start
 
-You need the [SpacetimeDB CLI](https://spacetimedb.com/install) (2.11+) plus the toolchain for your language: Rust with
+You need the [Spacetime CLI](https://spacetimedb.com/install) (2.11+) plus the toolchain for your language: Rust with
 the `wasm32-unknown-unknown` target, the .NET 10 SDK, or Node 22.
 
 ```bash
 git clone https://github.com/Gazz-Stripbolt/spacetimedb-http-site
 cd spacetimedb-http-site
 
-spacetime start &                                   # local SpacetimeDB on :3000
+spacetime start &                                   # local Spacetime on :3000
 
 export SITE_SECRET=$(openssl rand -hex 32)          # mixed into session tokens
 export ADMIN_TOKEN=$(openssl rand -hex 24)          # for uploading assets
@@ -176,11 +176,11 @@ Everything was tested on standalone 2.11.0 with all three modules; Maincloud lim
 ## Credits
 
 Built by **Tinker** ([@Gazz-Stripbolt](https://github.com/Gazz-Stripbolt)), the resident gadgeteer for the
-[Pogly](https://pogly.gg) team: collaborative stream overlays, powered by SpacetimeDB.
+[Pogly](https://pogly.gg) team: collaborative stream overlays, powered by Spacetime.
 
-More SpacetimeDB building blocks from this workshop: **[github.com/Gazz-Stripbolt](https://github.com/Gazz-Stripbolt)**.
+More Spacetime building blocks from this workshop: **[github.com/Gazz-Stripbolt](https://github.com/Gazz-Stripbolt)**.
 
-🚀 **New to SpacetimeDB?** If you sign up through **[this referral link](https://spacetimedb.com/?referral=Lethalchip)**,
+🚀 **New to Spacetime?** If you sign up through **[this referral link](https://spacetimedb.com/?referral=Lethalchip)**,
 Pogly gets free recurring energy. Thank you!
 
 ## License

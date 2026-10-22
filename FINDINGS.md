@@ -1,6 +1,6 @@
-# Findings: hosting a website from SpacetimeDB HTTP handlers
+# Findings: hosting a website from Spacetime HTTP handlers
 
-**Tested on:** SpacetimeDB **2.11.0** (standalone, CLI and server), with the same site as a **Rust**, **C#** (NativeAOT-LLVM, .NET 10) and **TypeScript** module, Linux x86-64 (2 vCPU, 4 GB RAM).
+**Tested on:** Spacetime **2.11.0** (standalone, CLI and server), with the same site as a **Rust**, **C#** (NativeAOT-LLVM, .NET 10) and **TypeScript** module, Linux x86-64 (2 vCPU, 4 GB RAM).
 **Source read:** `clockworklabs/SpacetimeDB` master at `f0d2ad4` (October 2026).
 **Not tested:** Maincloud. Its limits are listed as unknowns at the end.
 
@@ -31,7 +31,7 @@ A reverse proxy (see [`proxy/Caddyfile`](proxy/Caddyfile)) removes most of the U
 | Unknown route or wrong method | 404 with plain text `Database has not registered a handler for this route`. You can't customise this 404 from the module. |
 | `""` vs `/` | Two separate routes; register both. From `/route` (no slash), relative links resolve *outside* the route tree, so the demo injects `<base href>`. |
 | Request URI | The handler receives the **full external URL**, rebuilt from `Host` / `X-Forwarded-*`, including the query string. |
-| Request headers | ✅ All passed through: `Cookie`, `Authorization`, custom headers. SpacetimeDB doesn't validate `Authorization` on `/route`. |
+| Request headers | ✅ All passed through: `Cookie`, `Authorization`, custom headers. Spacetime doesn't validate `Authorization` on `/route`. |
 | Response headers | ✅ Passed through untouched: `Set-Cookie`, `Cache-Control`, `ETag`, `Location`, `Content-Encoding`, CSP. The host only adds CORS headers and `Vary`. |
 | Status codes | ✅ Anything valid: 201, 303, 304, 401, 409, … |
 | Conditional requests | ✅ Your handler can do ETag / `If-None-Match` → 304 itself; the host doesn't. |
@@ -140,7 +140,7 @@ For Maincloud, point the upstream at `https://maincloud.spacetimedb.com` with `h
 - Maincloud: front-proxy body limits, module size limits, rate limits, egress billing.
 - HTTP/2 specifics, Range requests (not handled by the host), and behaviour with thousands of routes (matching is a linear scan).
 
-## Ideas for SpacetimeDB
+## Ideas for Spacetime
 
 1. Return a generic 500 for handler panics and log the backtrace server-side (all three languages leak it today).
    In C#, catch handler exceptions in the generated dispatcher instead of rethrowing, so the instance isn't torn down.
