@@ -99,7 +99,8 @@ behind Caddy).
 
 - **The route is public.** Every handler has to check credentials itself.
 - **Don't use the handler RNG alone for secrets.** `HandlerContext::rng()` and `new_uuid_v4()` are seeded with `StdbRng::seed_from_ts(ctx.timestamp)`. Anyone who knows roughly when a token was minted can narrow it down. The demo hashes an owner-set `SITE_SECRET` (an [environment variable](https://spacetimedb.com/docs/databases/environment-variables)) together with the RNG output, the timestamp and per-request data. Only token *hashes* are stored.
-- **Cookies:** `HttpOnly; SameSite=Lax`, with `Path` scoped to the site's base path, so the cookie isn't sent to other databases on the same host.
+- **Cookies:** `HttpOnly; SameSite=Lax`, with `Path` scoped to the site's base path. `Path` is not a security boundary, though: every database on a host shares one origin. Any other module's page on that host is same-origin, so its scripts can send credentialed requests to your routes, read the responses, and plant their own cookies. `localStorage` is shared the same way.
+- **Don't keep sessions on a shared origin such as Maincloud's `/route` URLs.** Cookie logins are only safe when the site has its own origin, for example behind a reverse proxy on your own domain ([`proxy/Caddyfile`](proxy/Caddyfile)). The demo's logins assume that.
 - **Cross-origin:** the forced `ACAO: *` without credentials means cookie auth only works same-origin. Cross-origin clients need bearer tokens. The host's preflight only allows `authorization`, `accept` and `content-type` request headers.
 - **Passwords:** the demo uses salted SHA-256 to stay small. For anything real, use argon2/scrypt (both compile to wasm), and remember that a slow KDF blocks the shared thread while it runs.
 

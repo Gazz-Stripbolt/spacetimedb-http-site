@@ -72,7 +72,7 @@ flowchart LR
 
 - **Pages & assets** are embedded in the module (`include_str!` in Rust, `EmbeddedResource` in C#, a generated module in TypeScript), or stored in a table and swapped at runtime.
 - **The page injects `<base href>`** with the real route prefix, so every link and `fetch` stays relative.
-- **Auth is DIY:** a handler's sender is a new identity on every request, not the caller, so `/api/login` issues an `HttpOnly` session cookie and stores only the token's hash.
+- **Auth is DIY:** a handler's sender is a new identity on every request, not the caller, so `/api/login` issues an `HttpOnly` session cookie and stores only the token's hash. Only do this on your own origin: every database on a host shares one, so on Maincloud's `/route` URLs another module's page could act with the cookie.
 - **Writes go through `with_tx`.** They're real transactions, so WebSocket subscribers see them live.
 
 ## Quick start
