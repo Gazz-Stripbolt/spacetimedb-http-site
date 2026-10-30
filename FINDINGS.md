@@ -17,7 +17,7 @@ The limits that matter, roughly in order of how much they hurt:
    - No wildcards, no path params, no catch-all. `Router::nest` only adds a prefix to each route at build time.
 2. **Wasm handlers share the database's single thread.** That applies to Rust, C# and C++ modules. A slow handler stalls every other request *and* every reducer. TypeScript handlers run on a V8 worker pool instead (measured below), but have no CPU limit.
 3. **No streaming.** Request and response bodies are fully buffered, so there's no SSE or chunked progress. Use subscriptions for anything live.
-4. **No caller identity.** Handlers get no sender and no JWT, so you build auth yourself. The handler RNG is **seeded from the request timestamp**, so don't make session tokens from it alone.
+4. **No caller identity.** Handlers get no sender and no JWT, so you build auth yourself. (Since 2.14 they do get both, but it's a new identity on every request, so that doesn't change.) The handler RNG is **seeded from the request timestamp**, so don't make session tokens from it alone.
 5. **The host owns CORS and OPTIONS.** `Access-Control-Allow-Origin: *` is forced on every response, credentials are never allowed, and `.options()` handlers never run.
 
 A reverse proxy (see [`proxy/Caddyfile`](proxy/Caddyfile)) removes most of the URL pain.
