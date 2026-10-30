@@ -26,7 +26,15 @@ public static partial class Module
         public string ADMIN_TOKEN;
     }
 
-    static ModuleEnvironment SiteEnv => default;
+    // ModuleEnvironment isn't generated on .NET 10, where only ctx.Env has these fields, and this
+    // code often has no ctx. DatabaseEnvironment.Get works on every target.
+    readonly struct SiteEnvValues
+    {
+        public string SITE_SECRET => default(DatabaseEnvironment).Get("SITE_SECRET") ?? throw new InvalidOperationException("Required environment value is absent");
+        public string ADMIN_TOKEN => default(DatabaseEnvironment).Get("ADMIN_TOKEN") ?? throw new InvalidOperationException("Required environment value is absent");
+    }
+
+    static SiteEnvValues SiteEnv => default;
 
     // ---------- tables ----------
 
@@ -368,7 +376,8 @@ public static partial class Module
     }
 
     [SpacetimeDB.HttpHandler]
-    public static HttpResponse Register(HandlerContext ctx, HttpRequest req)
+    // Not named Register: a handler's generated class would clash with ModuleRegistration.Register.
+    public static HttpResponse RegisterAccount(HandlerContext ctx, HttpRequest req)
     {
         var @base = BasePath(req);
         if (ParseJson(req) is not { } body || Str(body, "name") is not { } rawName || Str(body, "password") is not { } password)
@@ -584,7 +593,7 @@ public static partial class Module
     {
         var api = Router.New()
             .Any("/posts", Handlers.Posts)
-            .Post("/register", Handlers.Register)
+            .Post("/register", Handlers.RegisterAccount)
             .Post("/login", Handlers.Login)
             .Post("/logout", Handlers.Logout)
             .Get("/me", Handlers.Me)
