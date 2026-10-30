@@ -9,7 +9,7 @@ Spacetime [HTTP handlers](https://spacetimedb.com/docs/functions/http-handlers),
 The same site is built three times, in **Rust**, **C#** and **TypeScript**, and one test suite checks all three.
 
 [![CI](https://github.com/Gazz-Stripbolt/spacetimedb-http-site/actions/workflows/ci.yml/badge.svg)](https://github.com/Gazz-Stripbolt/spacetimedb-http-site/actions/workflows/ci.yml)
-![Spacetime 2.12](https://img.shields.io/badge/Spacetime-2.12-e8730c)
+![Spacetime 2.14](https://img.shields.io/badge/Spacetime-2.14-e8730c)
 ![HTTP handlers: beta](https://img.shields.io/badge/HTTP%20handlers-beta-yellow)
 ![Rust](https://img.shields.io/badge/Rust-module-b7410e)
 ![C#](https://img.shields.io/badge/C%23-module-512bd4)
@@ -72,12 +72,13 @@ flowchart LR
 
 - **Pages & assets** are embedded in the module (`include_str!` in Rust, `EmbeddedResource` in C#, a generated module in TypeScript), or stored in a table and swapped at runtime.
 - **The page injects `<base href>`** with the real route prefix, so every link and `fetch` stays relative.
-- **Auth is DIY:** handlers have no caller identity, so `/api/login` issues an `HttpOnly` session cookie and stores only the token's hash.
+- **Auth is DIY:** a handler's sender is a new identity on every request, not the caller, so `/api/login` issues an `HttpOnly` session cookie and stores only the token's hash.
 - **Writes go through `with_tx`.** They're real transactions, so WebSocket subscribers see them live.
 
 ## Quick start
 
-You need the [Spacetime CLI](https://spacetimedb.com/install) (2.11+) plus the toolchain for your language: Rust with
+You need the [Spacetime CLI](https://spacetimedb.com/install) (2.14+, since modules built with the 2.14 libraries won't
+run on older hosts) plus the toolchain for your language: Rust with
 the `wasm32-unknown-unknown` target, the .NET 10 SDK, or Node 22.
 
 ```bash
@@ -123,7 +124,7 @@ node scripts/bench.mjs stdb-site      # rough throughput numbers
 | Any Content-Type, binary bodies, custom headers, cookies, redirects, 304s | Routes allow only `a-z 0-9 - _ ~ /`: **no `style.css`**, no uppercase |
 | 256 MB responses, 100 MB uploads, 100 MB modules (standalone) | No wildcards / path params / catch-all; `nest` is just a prefix |
 | HTTP writes push live to WebSocket subscribers | Rust and C# handlers **share one thread** with reducers |
-| ~8-12k req/s for small pages on a 2-vCPU box, in all three languages | No caller identity; the handler RNG is **timestamp-seeded** |
+| ~8-12k req/s for small pages on a 2-vCPU box, in all three languages | No stable caller identity; the handler RNG is **timestamp-seeded** |
 | Outbound HTTP from handlers (private IPs blocked) | Errors return a **stack trace** in the 500 body (wasm backtrace, or the JS stack in TypeScript) |
 | TypeScript handlers run on a worker pool, so a slow one doesn't block others | ...but TypeScript handlers have **no CPU limit** (Rust ~13 s, C# ~22 s) |
 | | C#: an exception traps the instance (~17 ms to recover), and wasi has no `System.IO.Compression` or crypto |
@@ -171,7 +172,7 @@ FINDINGS.md               the full write-up
 
 This is a **proof of concept**, not a template to ship as-is. HTTP handlers are beta and need the `unstable` feature.
 Passwords use salted SHA-256 to keep the demo small (use argon2/scrypt for real), and there's no rate limiting.
-Everything was tested on standalone 2.11.0 with all three modules; Maincloud limits are unknown.
+CI tests all three modules on standalone 2.14.0; Maincloud limits are unknown.
 
 ## Credits
 
